@@ -1,5 +1,7 @@
+import Head from "next/head";
 import MeetupList from "../components/meetups/MeetupList";
 import { MongoClient } from "mongodb";
+import { Fragment } from "react";
 
 // const DUMMY_MEETUPS = [
 //   {
@@ -21,7 +23,18 @@ import { MongoClient } from "mongodb";
 // ];
 
 export default function HomePage(props) {
-  return <MeetupList meetups={props.meetups} />;
+  return (
+    <Fragment>
+      <Head>
+        <title>React meetups</title>
+        <meta
+          name="description"
+          content="Browase a huge list of highly active react meetups!"
+        />
+      </Head>
+      <MeetupList meetups={props.meetups} />;
+    </Fragment>
+  );
 }
 
 // this fucntion will run during build process and when revalidaet is specefied in sec
@@ -38,15 +51,15 @@ export async function getStaticProps() {
   const meetups = await meetupsCollection.find().toArray(); //find will return all they collection and to array to get they data in array
 
   client.close();
- 
+
   return {
     props: {
-      meetups: meetups.map(meetup =>({
-        title:meetup.title,
-        address:meetup.address,
-        image:meetup.image,
-        id: meetup._id.toString()//tostring is used to convert an object to string,
-      }) ),
+      meetups: meetups.map((meetup) => ({
+        title: meetup.title,
+        address: meetup.address,
+        image: meetup.image,
+        id: meetup._id.toString(), //tostring is used to convert an object to string,
+      })),
     },
     //revalidate will re-render this page after 10 sec
     revalidate: 10,
