@@ -1,9 +1,9 @@
-import { useRouter } from "next/router";
+import { useRouter } from 'next/router';
 import NewMeetupForm from "../../components/meetups/NewMeetupForm";
 import { Fragment } from "react";
 import Head from "next/head";
 
-function newmeetuppage() {
+function Newmeetuppage() {
   const router = useRouter();
   async function addMeetupHandler(enetredMeetupData) {
     //console.log(enetredMeetupData);
@@ -33,4 +33,4 @@ function newmeetuppage() {
     </Fragment>
   );
 }
-export default newmeetuppage;
+export default Newmeetuppage;
