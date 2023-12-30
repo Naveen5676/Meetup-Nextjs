@@ -1,40 +1,63 @@
 import { Fragment } from "react";
+import { MongoClient, ObjectId } from "mongodb";
 import Meetupdetail from "../../components/meetups/MeetupDetail";
 
-export default function Meetupdetails() {
+export default function Meetupdetails(props) {
   return (
     <Meetupdetail
-      image="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Stadtbild_M%C3%BCnchen.jpg/1280px-Stadtbild_M%C3%BCnchen.jpg"
-      title="A First meetup"
-      address="some street 5 , some city"
-      description="the meetup description"
+      image={props.meetup.image}
+      title={props.meetup.title}
+      address={props.meetup.address}
+      description={props.meetup.description}
     />
   );
 }
 
 export async function getStaticPaths() {
+  
+  const client = await MongoClient.connect(
+    "mongodb+srv://new-user31:EXEY2T9sVmiwh1Nm@cluster0.pepc9yq.mongodb.net/meetups?retryWrites=true&w=majority"
+  );
+  const db = client.db();
+
+  const meetupsCollection = db.collection("meetups");
+
+  const meetups = await meetupsCollection.find({}, {_id:1}).toArray();
+
+  client.close()
   return {
     fallback: false,
-    paths: [
-      { params: { meetupid: "m1" } },
-      { params: { meetupid: "m2" } },
-      { params: { meetupid: "m3" } },
-    ],
+    paths:meetups.map(meetup=>({params:{meetupid: meetup._id.toString()}}))
+    //  [
+    //   { params: { meetupid: "m1" } },
+    //   { params: { meetupid: "m2" } },
+    //   { params: { meetupid: "m3" } },
+    // ],
   };
 }
 
 export async function getStaticProps(context) {
   const meetupID = context.params.meetupid;
-  console.log(meetupID);
+
+  const client = await MongoClient.connect(
+    "mongodb+srv://new-user31:EXEY2T9sVmiwh1Nm@cluster0.pepc9yq.mongodb.net/meetups?retryWrites=true&w=majority"
+  );
+  const db = client.db();
+
+  const meetupsCollection = db.collection("meetups");
+
+  const selectedmeetup = await meetupsCollection.findOne({_id:new ObjectId(meetupID)});//findone is used to find one single object
+    //wrap meetupId arounf ObjectId beacuse to convert string to object 
+  client.close()
+  //console.log(meetupID);
   return {
     props: {
       meetup: {
-        image:
-          "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Stadtbild_M%C3%BCnchen.jpg/1280px-Stadtbild_M%C3%BCnchen.jpg",
-        id: meetupID,
-        title: "A First meetup",
-        address: "some street 5 , some city",
-        description: "the meetup description",
+        id:selectedmeetup._id.toString(),
+        title:selectedmeetup.title,
+        address:selectedmeetup.address,
+        image:selectedmeetup.image,
+        description:selectedmeetup.description
       },
     },
   };
